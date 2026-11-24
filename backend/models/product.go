@@ -3,12 +3,13 @@ package models
 import "time"
 
 type Product struct {
-	ID        uint             `gorm:"primaryKey" json:"id"`
-	Name      string           `gorm:"type:varchar(150);not null;index" json:"name"`
-	BaseStock float64          `gorm:"type:numeric(14,4);not null;default:0" json:"base_stock"`
-	Variants  []ProductVariant `gorm:"foreignKey:ProductID" json:"variants,omitempty"`
-	CreatedAt time.Time        `json:"created_at"`
-	UpdatedAt time.Time        `json:"updated_at"`
+	ID         uint             `gorm:"primaryKey" json:"id"`
+	BusinessID uint             `gorm:"not null;default:1;index" json:"business_id"`
+	Name       string           `gorm:"type:varchar(150);not null;index" json:"name"`
+	BaseStock  float64          `gorm:"type:numeric(14,4);not null;default:0" json:"base_stock"`
+	Variants   []ProductVariant `gorm:"foreignKey:ProductID" json:"variants,omitempty"`
+	CreatedAt  time.Time        `json:"created_at"`
+	UpdatedAt  time.Time        `json:"updated_at"`
 }
 
 type ProductVariant struct {

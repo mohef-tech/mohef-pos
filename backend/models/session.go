@@ -9,6 +9,7 @@ const (
 
 type CashierSession struct {
 	ID           uint       `gorm:"primaryKey" json:"id"`
+	BusinessID   uint       `gorm:"not null;default:1;index" json:"business_id"`
 	UserID       uint       `gorm:"not null;index" json:"user_id"`
 	User         User       `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"user,omitempty"`
 	StartTime    time.Time  `gorm:"not null" json:"start_time"`

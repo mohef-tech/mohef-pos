@@ -13,6 +13,7 @@ const (
 
 type Transaction struct {
 	ID            uint              `gorm:"primaryKey" json:"id"`
+	BusinessID    uint              `gorm:"not null;default:1;index" json:"business_id"`
 	SessionID     uint              `gorm:"not null;index" json:"session_id"`
 	Session       CashierSession    `gorm:"foreignKey:SessionID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"session,omitempty"`
 	ReceiptNumber string            `gorm:"type:varchar(64);not null;uniqueIndex" json:"receipt_number"`

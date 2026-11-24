@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mohef-tech/mohef-pos/backend/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -79,17 +78,6 @@ func ConnectDB() (*gorm.DB, error) {
 
 	if err := sqlDB.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
-	}
-
-	if err := db.AutoMigrate(
-		&models.User{},
-		&models.Product{},
-		&models.ProductVariant{},
-		&models.CashierSession{},
-		&models.Transaction{},
-		&models.TransactionItem{},
-	); err != nil {
-		return nil, fmt.Errorf("failed to run auto-migrate: %w", err)
 	}
 
 	DB = db

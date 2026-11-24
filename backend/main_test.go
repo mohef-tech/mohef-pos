@@ -68,3 +68,69 @@ func TestCORSMiddleware(t *testing.T) {
 		}
 	})
 }
+
+func TestAuthLoginRouteValidation(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := setupRouter(nil, parseAllowedOrigins("http://localhost:5173"))
+
+	t.Run("rejects invalid role", func(t *testing.T) {
+		body := strings.NewReader(`{"role":"guest"}`)
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", body)
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("expected 400, got %d", rec.Code)
+		}
+	})
+
+	t.Run("requires email and password for owner", func(t *testing.T) {
+		body := strings.NewReader(`{"role":"owner","email":"owner@mohefpos.local"}`)
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", body)
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("expected 400, got %d", rec.Code)
+		}
+	})
+
+	t.Run("requires username and pin for cashier", func(t *testing.T) {
+		body := strings.NewReader(`{"role":"cashier","username":"kasir1"}`)
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", body)
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("expected 400, got %d", rec.Code)
+		}
+	})
+}
+
+func TestProductRoutesRequireAuth(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := setupRouter(nil, parseAllowedOrigins("http://localhost:5173"))
+
+	for _, tc := range []struct {
+		method string
+		path   string
+	}{
+		{http.MethodGet, "/api/products"},
+		{http.MethodPost, "/api/products"},
+		{http.MethodPost, "/api/products/adjust-stock"},
+	} {
+		req := httptest.NewRequest(tc.method, tc.path, nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusUnauthorized {
+			t.Fatalf("%s %s: expected 401 without token, got %d", tc.method, tc.path, rec.Code)
+		}
+	}
+}

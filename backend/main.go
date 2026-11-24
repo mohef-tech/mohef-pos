@@ -9,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mohef-tech/mohef-pos/backend/config"
+	"github.com/mohef-tech/mohef-pos/backend/models"
+	"github.com/mohef-tech/mohef-pos/backend/routes"
 	"gorm.io/gorm"
 )
 
@@ -60,7 +62,30 @@ func setupRouter(db *gorm.DB, allowedOrigins map[string]struct{}) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "database": "connected"})
 	})
 
+	routes.RegisterAuthRoutes(r, db)
+	routes.ProductRoutes(r)
+	routes.SessionRoutes(r)
+	routes.TransactionRoutes(r)
+	routes.ReturnRoutes(r)
+	routes.AuditRoutes(r)
+	routes.ReportRoutes(r)
+
 	return r
+}
+
+func migrateDatabase(db *gorm.DB) error {
+	return db.AutoMigrate(
+		&models.User{},
+		&models.Product{},
+		&models.ProductVariant{},
+		&models.CashierSession{},
+		&models.Transaction{},
+		&models.TransactionItem{},
+		&models.StockMovement{},
+		&models.Return{},
+		&models.ReturnItem{},
+		&models.PrintAudit{},
+	)
 }
 
 func getEnvOrDefault(key, fallback string) string {
@@ -74,6 +99,16 @@ func main() {
 	db, err := config.ConnectDB()
 	if err != nil {
 		log.Fatalf("database initialization failed: %v", err)
+	}
+
+	if err := migrateDatabase(db); err != nil {
+		log.Fatalf("database auto-migrate failed: %v", err)
+	}
+
+	if gin.Mode() != gin.ReleaseMode {
+		if err := config.SeedDevUsers(db); err != nil {
+			log.Printf("warning: failed to seed dev users: %v", err)
+		}
 	}
 
 	originsEnv := getEnvOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
