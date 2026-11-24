@@ -1,16 +1,83 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-bg-canvas: #F6EFE6;
+  --color-bg-surface: #EFE6DA;
+  --color-bg-card: #FFFDF9;
+  --color-text-primary: #2B1D14;
+  --color-text-secondary: #5C4B40;
+  --color-text-muted: #6A594D;
+  --color-chrome-bg: #0F2A24;
+  --color-chrome-deep: #0B201B;
+  --color-chrome-raised: #173B32;
+  --color-chrome-text: #F6EFE6;
+  --color-chrome-muted: #B4C6BF;
+  --color-accent-copper: #A8643A;
+  --color-accent-copper-hover: #92522B;
+  --color-accent-gold: #D8C28A;
+  --color-status-danger: #6E1F2F;
+  --color-status-danger-bg: #F7E8EB;
+  --color-status-warning-text: #7C4A15;
+  --color-status-warning-bg: #FBF1DF;
+  --color-status-success: #14532D;
+}
+
+:root {
+  --bg-canvas: #F6EFE6;
+  --bg-surface: #EFE6DA;
+  --bg-card: #FFFDF9;
+  --text-primary: #2B1D14;
+  --text-secondary: #5C4B40;
+  --text-muted: #6A594D;
+  --border-subtle: rgba(43, 29, 20, 0.1);
+  --border-strong: rgba(43, 29, 20, 0.22);
+
+  --chrome-bg: #0F2A24;
+  --chrome-deep: #0B201B;
+  --chrome-raised: #173B32;
+  --chrome-text: #F6EFE6;
+  --chrome-muted: #B4C6BF;
+
+  --accent-copper: #A8643A;
+  --accent-copper-hover: #92522B;
+  --accent-gold: #D8C28A;
+
+  --status-danger: #6E1F2F;
+  --status-danger-bg: #F7E8EB;
+  --status-warning-text: #7C4A15;
+  --status-warning-bg: #FBF1DF;
+  --status-success: #14532D;
+
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --glass-console-bg: rgba(15, 42, 36, 0.74);
+  --glass-console-border: rgba(216, 194, 138, 0.22);
+}
+
 @layer base {
   html {
     font-size: 16px;
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
   }
 
   button:not(:disabled),
   a[href],
   select:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]) {
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]) {
     cursor: pointer;
   }
 
@@ -22,8 +89,12 @@
   }
 
   :focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid var(--accent-copper);
     outline-offset: 2px;
+  }
+
+  .surface-dark :focus-visible {
+    outline-color: var(--accent-gold);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -36,4 +107,59 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.login-glass-console {
+  background-color: var(--glass-console-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-console-border);
+  box-shadow: 0 24px 48px -16px rgba(6, 18, 15, 0.56);
+}
+
+.login-input {
+  transition:
+    border-color 140ms var(--ease-standard),
+    background-color 140ms var(--ease-standard),
+    box-shadow 140ms var(--ease-standard);
+}
+
+.login-input:user-invalid {
+  border-color: #E89AA7;
+}
+
+/* Override UA autofill background on dark glass inputs with a non-color inset ring */
+.login-input:is(:autofill, :-webkit-autofill) {
+  box-shadow:
+    inset 0 0 0 2px var(--accent-gold),
+    inset 0 0 0 100vmax #14332B;
+  -webkit-text-fill-color: var(--chrome-text);
+  caret-color: var(--chrome-text);
+  border-color: var(--accent-gold);
+}
+
+.login-input:is(:autofill, :-webkit-autofill):focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+.motion-interactive {
+  transition:
+    color 140ms var(--ease-standard),
+    background-color 140ms var(--ease-standard),
+    border-color 140ms var(--ease-standard),
+    opacity 140ms var(--ease-standard),
+    transform 140ms var(--ease-standard);
+}
+
+.motion-pill {
+  transition:
+    transform 220ms var(--ease-standard),
+    background-color 220ms var(--ease-standard),
+    color 220ms var(--ease-standard);
 }
