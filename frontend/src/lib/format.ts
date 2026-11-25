@@ -78,3 +78,24 @@ export function parseLocaleNumber(raw: string): number {
   }
   return Number(normalized)
 }
+
+const MAX_CURRENCY_DIGITS = 12
+
+export function sanitizeCurrencyDigits(raw: string): string {
+  const digitsOnly = raw.replace(/\D+/g, '')
+  if (digitsOnly === '') return ''
+  const withoutLeadingZeros = digitsOnly.replace(/^0+(?=\d)/, '')
+  return withoutLeadingZeros.slice(0, MAX_CURRENCY_DIGITS)
+}
+
+export function formatCurrencyDigits(raw: string): string {
+  const digits = sanitizeCurrencyDigits(raw)
+  if (digits === '') return ''
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
+export function parseCurrencyDigits(raw: string): number {
+  const digits = sanitizeCurrencyDigits(raw)
+  if (digits === '') return Number.NaN
+  return Number(digits)
+}

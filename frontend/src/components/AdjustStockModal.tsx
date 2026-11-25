@@ -105,7 +105,7 @@ export function AdjustStockModal({
       onClose={handleClose}
       title="Sesuaikan stok dasar"
       description={product ? `Produk: ${product.name}` : undefined}
-      maxWidthClass="w-full max-w-lg"
+      size="md"
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         {serverError ? (

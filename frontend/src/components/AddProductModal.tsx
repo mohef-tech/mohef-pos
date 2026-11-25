@@ -1,8 +1,9 @@
 import { useId, useState, type FormEvent } from 'react'
 import { AlertCircle, Loader2, Plus, Trash2 } from 'lucide-react'
+import { CurrencyInput } from '@/components/CurrencyInput'
 import { ModalDialog } from '@/components/ModalDialog'
 import { ApiError, createProduct } from '@/lib/api'
-import { parseLocaleNumber } from '@/lib/format'
+import { parseCurrencyDigits, parseLocaleNumber } from '@/lib/format'
 import type { CreateProductVariantInput, Product } from '@/types/product'
 
 interface VariantDraft {
@@ -90,7 +91,7 @@ export function AddProductModal({
       return { name: null, rate: null, price: null }
     }
     const rateNum = parseLocaleNumber(variant.conversionRate)
-    const priceNum = parseLocaleNumber(variant.price)
+    const priceNum = parseCurrencyDigits(variant.price)
     return {
       name: variant.variantName.trim().length === 0 ? 'Nama kemasan wajib diisi.' : null,
       rate: !Number.isFinite(rateNum) || rateNum <= 0 ? 'Isi konversi harus lebih dari 0.' : null,
@@ -113,7 +114,7 @@ export function AddProductModal({
     for (const v of variants) {
       const vName = v.variantName.trim()
       const rate = parseLocaleNumber(v.conversionRate)
-      const price = parseLocaleNumber(v.price)
+      const price = parseCurrencyDigits(v.price)
       if (
         vName.length === 0 ||
         !Number.isFinite(rate) ||
@@ -160,7 +161,7 @@ export function AddProductModal({
       onClose={handleClose}
       title="Tambah produk baru"
       description="Atur nama barang, stok awal dalam satuan dasar, dan minimal satu kemasan jual."
-      maxWidthClass="w-full max-w-2xl"
+      size="lg"
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         {serverError ? (
@@ -337,21 +338,24 @@ export function AddProductModal({
                         htmlFor={vPriceId}
                         className="block text-xs font-medium text-[#5C4B40]"
                       >
-                        Harga jual (Rp)
+                        Harga jual
                       </label>
-                      <input
+                      <CurrencyInput
                         id={vPriceId}
-                        type="text"
-                        inputMode="decimal"
                         required
                         value={variant.price}
-                        onChange={(e) => updateVariant(variant.key, 'price', e.target.value)}
-                        placeholder="Contoh: 15000"
+                        onValueChange={(digits) => updateVariant(variant.key, 'price', digits)}
+                        placeholder="Contoh: 15.000"
                         aria-invalid={errs.price ? 'true' : 'false'}
-                        className="pos-input font-mono-tabular mt-1 h-11 w-full rounded-[10px] border border-[#2B1D14]/22 bg-[#FFFDF9] px-3 text-sm text-[#2B1D14] placeholder:text-[#6A594D]"
+                        aria-describedby={errs.price ? `${vPriceId}-error` : undefined}
+                        wrapperClassName="mt-1"
+                        className="h-11 text-sm"
                       />
                       {errs.price ? (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-[#6E1F2F]">
+                        <p
+                          id={`${vPriceId}-error`}
+                          className="mt-1 flex items-center gap-1 text-xs text-[#6E1F2F]"
+                        >
                           <AlertCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                           <span>{errs.price}</span>
                         </p>

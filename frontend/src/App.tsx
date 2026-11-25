@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { AppShell, type WorkspaceMode } from '@/components/AppShell'
 import { clearAuthSession, getStoredAuthSession, saveAuthSession } from '@/lib/api'
-import { CashierPlaceholderPage } from '@/pages/CashierPlaceholderPage'
+import { CashierPage } from '@/pages/CashierPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import type { AuthSession } from '@/types/auth'
@@ -41,8 +41,9 @@ export default function App() {
       {activeWorkspaceMode === 'owner' ? (
         <ProductsPage onUnauthorized={handleLogout} />
       ) : (
-        <CashierPlaceholderPage
+        <CashierPage
           session={session}
+          onUnauthorized={handleLogout}
           onBackToOwner={isOwner ? () => setOwnerWorkspaceMode('owner') : undefined}
         />
       )}

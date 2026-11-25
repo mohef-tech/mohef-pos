@@ -11,6 +11,16 @@ import type {
   CreateProductPayload,
   Product,
 } from '@/types/product'
+import type {
+  ActiveShiftState,
+  CashierSession,
+  CloseSessionPayload,
+  CloseSessionResponse,
+  CreateTransactionPayload,
+  LogPrintReceiptResponse,
+  OpenSessionPayload,
+  Transaction,
+} from '@/types/pos'
 
 const AUTH_STORAGE_KEY = 'mohef_pos_auth_session'
 const DEFAULT_API_BASE_URL = 'http://localhost:8080'
@@ -222,4 +232,81 @@ export async function adjustProductStock(
     withAuth: true,
     body: payload,
   })
+}
+
+export async function openCashierSession(payload: OpenSessionPayload): Promise<CashierSession> {
+  const response = await apiRequest<DataResponse<CashierSession>>('/api/sessions/open', {
+    method: 'POST',
+    withAuth: true,
+    body: payload,
+  })
+  return response.data
+}
+
+export async function closeCashierSession(
+  payload: CloseSessionPayload,
+): Promise<CloseSessionResponse> {
+  return apiRequest<CloseSessionResponse>('/api/sessions/close', {
+    method: 'POST',
+    withAuth: true,
+    body: payload,
+  })
+}
+
+export async function createTransaction(payload: CreateTransactionPayload): Promise<Transaction> {
+  const response = await apiRequest<DataResponse<Transaction>>('/api/transactions', {
+    method: 'POST',
+    withAuth: true,
+    body: payload,
+  })
+  return response.data
+}
+
+export async function logPrintReceipt(transactionId: number): Promise<LogPrintReceiptResponse> {
+  return apiRequest<LogPrintReceiptResponse>('/api/audits/print', {
+    method: 'POST',
+    withAuth: true,
+    body: { transaction_id: transactionId },
+  })
+}
+
+function getShiftStorageKey(businessId: number, userId: number): string {
+  return `mohef_pos_active_shift_${businessId}_${userId}`
+}
+
+export function getStoredActiveShift(businessId: number, userId: number): ActiveShiftState | null {
+  try {
+    const raw = window.localStorage.getItem(getShiftStorageKey(businessId, userId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<ActiveShiftState>
+    if (
+      parsed?.session &&
+      parsed.session.status === 'open' &&
+      typeof parsed.session.starting_cash === 'number'
+    ) {
+      return {
+        session: parsed.session,
+        resumedFromServer: Boolean(parsed.resumedFromServer),
+        localCashSales: typeof parsed.localCashSales === 'number' ? parsed.localCashSales : 0,
+        localQrisSales: typeof parsed.localQrisSales === 'number' ? parsed.localQrisSales : 0,
+        transactionCount:
+          typeof parsed.transactionCount === 'number' ? parsed.transactionCount : 0,
+      }
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+export function saveActiveShift(
+  businessId: number,
+  userId: number,
+  state: ActiveShiftState,
+): void {
+  window.localStorage.setItem(getShiftStorageKey(businessId, userId), JSON.stringify(state))
+}
+
+export function clearActiveShift(businessId: number, userId: number): void {
+  window.localStorage.removeItem(getShiftStorageKey(businessId, userId))
 }

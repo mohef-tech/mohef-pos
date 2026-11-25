@@ -176,31 +176,57 @@
   background-color: #FDF7F8;
 }
 
-dialog.pos-modal {
-  margin: auto;
-  padding: 0;
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  background-color: var(--bg-card);
-  color: var(--text-primary);
-  max-width: calc(100vw - 2rem);
-  max-height: calc(100dvh - 2rem);
-  box-shadow: 0 24px 48px -16px rgba(15, 42, 36, 0.34);
+@layer components {
+  dialog.pos-modal {
+    margin: auto;
+    padding: 0;
+    width: calc(100vw - 2rem);
+    max-height: 90dvh;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 24px 48px -16px rgba(15, 42, 36, 0.34);
+  }
+
+  dialog.pos-modal[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dialog.pos-modal:modal {
+    overscroll-behavior: contain;
+  }
+
+  dialog.pos-modal::backdrop {
+    background-color: rgba(11, 32, 27, 0.56);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
 }
 
-dialog.pos-modal[open] {
-  display: flex;
-  flex-direction: column;
-}
+@media print {
+  body * {
+    visibility: hidden;
+  }
 
-dialog.pos-modal:modal {
-  overscroll-behavior: contain;
-}
+  .pos-receipt-printable,
+  .pos-receipt-printable * {
+    visibility: visible;
+  }
 
-dialog.pos-modal::backdrop {
-  background-color: rgba(11, 32, 27, 0.56);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  overflow: hidden;
-  overscroll-behavior: contain;
+  .pos-receipt-printable {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    padding: 16px;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 80mm;
+    max-width: 100%;
+  }
 }
