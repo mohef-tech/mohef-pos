@@ -5,6 +5,12 @@ import type {
   LoginResponse,
   UserRole,
 } from '@/types/auth'
+import type {
+  AdjustStockPayload,
+  AdjustStockResponse,
+  CreateProductPayload,
+  Product,
+} from '@/types/product'
 
 const AUTH_STORAGE_KEY = 'mohef_pos_auth_session'
 const DEFAULT_API_BASE_URL = 'http://localhost:8080'
@@ -184,4 +190,36 @@ export async function loginWithSmartFallback(
       throw error
     }
   }
+}
+
+interface DataResponse<T> {
+  data: T
+}
+
+export async function fetchProducts(signal?: AbortSignal): Promise<Product[]> {
+  const response = await apiRequest<DataResponse<Product[] | null>>('/api/products', {
+    method: 'GET',
+    withAuth: true,
+    signal,
+  })
+  return Array.isArray(response.data) ? response.data : []
+}
+
+export async function createProduct(payload: CreateProductPayload): Promise<Product> {
+  const response = await apiRequest<DataResponse<Product>>('/api/products', {
+    method: 'POST',
+    withAuth: true,
+    body: payload,
+  })
+  return response.data
+}
+
+export async function adjustProductStock(
+  payload: AdjustStockPayload,
+): Promise<AdjustStockResponse> {
+  return apiRequest<AdjustStockResponse>('/api/products/adjust-stock', {
+    method: 'POST',
+    withAuth: true,
+    body: payload,
+  })
 }

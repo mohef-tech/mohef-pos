@@ -163,3 +163,44 @@
     background-color 220ms var(--ease-standard),
     color 220ms var(--ease-standard);
 }
+
+.pos-input {
+  transition:
+    border-color 140ms var(--ease-standard),
+    background-color 140ms var(--ease-standard),
+    box-shadow 140ms var(--ease-standard);
+}
+
+.pos-input:user-invalid {
+  border-color: var(--status-danger);
+  background-color: #FDF7F8;
+}
+
+dialog.pos-modal {
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  box-shadow: 0 24px 48px -16px rgba(15, 42, 36, 0.34);
+}
+
+dialog.pos-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+dialog.pos-modal:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.pos-modal::backdrop {
+  background-color: rgba(11, 32, 27, 0.56);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
